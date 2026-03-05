@@ -274,11 +274,25 @@ void dump_graph(FILE *file, Vec s, Mat a)
   fprintf(file, "\n}");
 }
 
+void print_progress(size_t current, size_t total)
+{
+  int bar_width = 40;
+  float progress = (float)current/(float)total;
+  int filled = (int)(progress * bar_width);
+
+  printf("\r["); //cursor back to start
+  for(int i = 0; i < bar_width; ++i) {
+    if(i < filled) printf("█");
+    else printf(" ");
+  }
+  printf("] %zu/%zu (%.0f%%)", current, total, progress * 100);
+  fflush(stdout);
+}
 
 int main(void) 
 {
   size_t rule_no =  549;
-  size_t t = 26;
+  size_t t = 2;
   
   Mat a = mat_alloc(o, o); // adjancecy matrix
   for(size_t r = 0; r < a.rows; ++r) {
@@ -305,9 +319,11 @@ int main(void)
     FILE *f = fopen(png_file, "w");
     assert(f != NULL);
     dump_graph(f, s, a);
-    fclose(f);
-    rule(&s, &a, rule_no);
+    fclose(f);  
+    print_progress(c + 1, t + 1);
+    if (c < t) rule(&s, &a, rule_no);
   }
+  printf("\nDone! Generated %zu dot files.\n", t + 1);
   return 0;
  
 #if 0
